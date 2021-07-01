@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'setting_page.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -32,6 +34,19 @@ class MyHomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('コンタクト管理'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingPage(),
+                  ),
+                );
+              },
+            )
+          ],
         ),
         body: Consumer<SettingModel>(builder: (context, model, child) {
           return Column(
