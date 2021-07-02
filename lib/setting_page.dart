@@ -1,18 +1,20 @@
-import 'package:contact_life/setting_model.dart';
+import 'package:contact_life/main_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SettingPage extends StatelessWidget {
+  final btnWidth = 40.0;
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<SettingModel>(
-      create: (_) => SettingModel(),
+    return ChangeNotifierProvider<MainModel>(
+      create: (_) => MainModel(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('設定'),
           automaticallyImplyLeading: false,
-          leading: Consumer<SettingModel>(
+          leading: Consumer<MainModel>(
             builder: (context, model, child) {
               return IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -23,7 +25,7 @@ class SettingPage extends StatelessWidget {
             },
           ),
         ),
-        body: Consumer<SettingModel>(
+        body: Consumer<MainModel>(
           builder: (context, model, child) {
             return Padding(
               padding: EdgeInsets.all(16.0),
@@ -64,12 +66,14 @@ class SettingPage extends StatelessWidget {
                                                   BorderRadius.circular(5),
                                             ),
                                             child: Text(
-                                              // '${model.startDateText}',
-                                              '7月1日',
+                                              '${model.startDateText}',
+                                              // '7月1日',
                                               style: TextStyle(fontSize: 15),
                                             ),
                                           ),
-                                          onTap: () async {},
+                                          onTap: () async {
+                                            _selectedDate(context, model);
+                                          },
                                         ),
                                       ],
                                     ),
@@ -129,7 +133,7 @@ class SettingPage extends StatelessWidget {
                                                   //  TODO 日にち減らす
                                                 },
                                                 child: Container(
-                                                  width: 40,
+                                                  width: btnWidth,
                                                   height: 30,
                                                   decoration: ShapeDecoration(
                                                     color: Colors.lightBlue,
@@ -180,24 +184,31 @@ class SettingPage extends StatelessWidget {
                                                                   8.0,
                                                                   12.0,
                                                                   8.0),
-                                                          child: Text(
-                                                            //TODO 変数にする
-                                                            // '${model.counter}',
-                                                            '14',
-                                                            textAlign: TextAlign
-                                                                .center,
+                                                          child: SizedBox(
+                                                            width: 20,
+                                                            child: Text(
+                                                              //TODO 変数にする
+                                                              // '${model.counter}',
+                                                              '14',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    _showChangeDaysCounter(
+                                                        context, model);
+                                                  },
                                                 ),
                                               ),
                                               InkWell(
                                                 onTap: () {},
                                                 child: Container(
-                                                  width: 40,
+                                                  width: btnWidth,
                                                   height: 30,
                                                   decoration: ShapeDecoration(
                                                     color: Colors.lightBlue,
@@ -243,18 +254,18 @@ class SettingPage extends StatelessWidget {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('残レンズ数'),
+                                    Text('レンズ数'),
                                     Column(
                                       children: [
                                         ButtonBar(
                                           children: [
                                             InkWell(
                                               onTap: () {
-                                                // model.decrementStock();
+                                                model.decrementStock();
                                                 //  TODO　ストック減らす
                                               },
                                               child: Container(
-                                                width: 42,
+                                                width: btnWidth,
                                                 height: 30,
                                                 decoration: ShapeDecoration(
                                                   color: Colors.lightBlue,
@@ -302,52 +313,31 @@ class SettingPage extends StatelessWidget {
                                                                 8.0,
                                                                 12.0,
                                                                 8.0),
-                                                        child: Text(
-                                                          // '${model.lensStock}'
-                                                          '6',
-                                                          textAlign:
-                                                              TextAlign.center,
+                                                        child: SizedBox(
+                                                          width: 20,
+                                                          child: Text(
+                                                            '${model.lensStock}',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                                 onTap: () {
-                                                  // Picker(
-                                                  //     adapter: NumberPickerAdapter(
-                                                  //         data: [
-                                                  //           NumberPickerColumn(
-                                                  //             begin: 0,
-                                                  //             end: 100,
-                                                  //           ),
-                                                  //         ]),
-                                                  //     delimiter: [
-                                                  //       PickerDelimiter(
-                                                  //           child: Container(
-                                                  //             width: 30,
-                                                  //             alignment:
-                                                  //             Alignment.center,
-                                                  //             child: Text('個'),
-                                                  //           ))
-                                                  //     ],
-                                                  //     hideHeader: true,
-                                                  //     selectedTextStyle: TextStyle(
-                                                  //         color: Colors.blue),
-                                                  //     onConfirm: (Picker picker,
-                                                  //         List value) {
-                                                  //       // print(value);
-                                                  //       model.pickStock(value);
-                                                  //     }).showDialog(context);
+                                                  _showChangeLensStock(
+                                                      context, model);
                                                 },
                                               ),
                                             ),
                                             InkWell(
                                               onTap: () {
                                                 //TODO ストック1増やす
-                                                // model.incrementStock(1);
+                                                model.incrementStock(1);
                                               },
                                               child: Container(
-                                                width: 40,
+                                                width: btnWidth,
                                                 height: 30,
                                                 decoration: ShapeDecoration(
                                                   color: Colors.lightBlue,
@@ -371,7 +361,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO ストック5増やす
-                                                // model.incrementStock(5);
+                                                model.incrementStock(5);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -398,9 +388,8 @@ class SettingPage extends StatelessWidget {
                                             ),
                                             InkWell(
                                               onTap: () {
-                                                //TODO ストック1増やす
                                                 //TODO ストック10増やす
-                                                // model.incrementStock(10);
+                                                model.incrementStock(10);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -460,10 +449,10 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO 洗浄液減らす
-                                                // model.decrementWasher();
+                                                model.decrementWasher();
                                               },
                                               child: Container(
-                                                width: 40,
+                                                width: btnWidth,
                                                 height: 30,
                                                 decoration: ShapeDecoration(
                                                   color: Colors.lightBlue,
@@ -511,52 +500,32 @@ class SettingPage extends StatelessWidget {
                                                                 8.0,
                                                                 12.0,
                                                                 8.0),
-                                                        child: Text(
-                                                          // '${model.washerStock}'
-                                                          '6',
-                                                          textAlign:
-                                                              TextAlign.center,
+                                                        child: SizedBox(
+                                                          width: 20,
+                                                          child: Text(
+                                                            // '${model.washerStock}'
+                                                            '${model.washerStock}',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                                 onTap: () {
-                                                  // Picker(
-                                                  //     adapter: NumberPickerAdapter(
-                                                  //         data: [
-                                                  //           NumberPickerColumn(
-                                                  //             begin: 0,
-                                                  //             end: 100,
-                                                  //           ),
-                                                  //         ]),
-                                                  //     delimiter: [
-                                                  //       PickerDelimiter(
-                                                  //           child: Container(
-                                                  //             width: 30,
-                                                  //             alignment:
-                                                  //             Alignment.center,
-                                                  //             child: Text('個'),
-                                                  //           ))
-                                                  //     ],
-                                                  //     hideHeader: true,
-                                                  //     selectedTextStyle: TextStyle(
-                                                  //         color: Colors.blue),
-                                                  //     onConfirm: (Picker picker,
-                                                  //         List value) {
-                                                  //       // print(value);
-                                                  //       model.pickWasher(value);
-                                                  //     }).showDialog(context);
+                                                  _showChangeWasherStock(
+                                                      context, model);
                                                 },
                                               ),
                                             ),
                                             InkWell(
                                               onTap: () {
                                                 //TODO  洗浄液1増やす
-                                                // model.incrementWasher(1);
+                                                model.incrementWasher(1);
                                               },
                                               child: Container(
-                                                width: 40,
+                                                width: btnWidth,
                                                 height: 30,
                                                 decoration: ShapeDecoration(
                                                   color: Colors.lightBlue,
@@ -580,7 +549,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO  洗浄液５増やす
-                                                // model.incrementWasher(5);
+                                                model.incrementWasher(5);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -608,7 +577,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO  洗浄液10増やす
-                                                // model.incrementWasher(10);
+                                                model.incrementWasher(10);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -707,27 +676,14 @@ class SettingPage extends StatelessWidget {
                                           padding: const EdgeInsets.all(8.0),
                                           child: InkWell(
                                             child: Text(
-                                              '18:00',
-                                              // '${model.pushTimeText}',
+                                              '${model.pushTime}',
                                               textAlign: TextAlign.end,
                                               style: TextStyle(
                                                 fontSize: 18,
                                               ),
                                             ),
                                             onTap: () async {
-                                              // Picker(
-                                              //   adapter: DateTimePickerAdapter(
-                                              //       type:
-                                              //           PickerDateTimeType.kHM,
-                                              //       value: model.pushTime,
-                                              //       customColumnType: [3, 4]),
-                                              //   title: Text('Select Time'),
-                                              //   onConfirm: (Picker picker,
-                                              //       List value) {
-                                              //     model.setPushTime(
-                                              //         picker, value);
-                                              //   },
-                                              // ).showModal(context);
+                                              _selectPushTime(context, model);
                                             },
                                           ),
                                         ),
@@ -750,4 +706,143 @@ class SettingPage extends StatelessWidget {
       ),
     );
   }
+
+  Future _selectedDate(BuildContext context, MainModel model) async {
+    final DateTime? selectedStartDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().add(Duration(days: -365)),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+    );
+    if (selectedStartDate != null) {
+      model.selectStartDate(selectedStartDate);
+    }
+  }
+
+  Future _selectPushTime(BuildContext context, MainModel model) async {
+    final TimeOfDay? selectedPushTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (selectedPushTime != null) {
+      model.selectPushTime(selectedPushTime);
+    }
+  }
+
+  _showChangeDaysCounter(BuildContext context, MainModel model) => showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('期間の入力'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: '14',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text('cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+  _showChangeLensStock(BuildContext context, MainModel model) => showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('レンズの数'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: '6',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text('cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+  _showChangeWasherStock(BuildContext context, MainModel model) => showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('洗浄液の数'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: '6',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text('cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
 }

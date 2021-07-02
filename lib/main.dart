@@ -1,5 +1,5 @@
 import 'package:contact_life/circle_painer.dart';
-import 'package:contact_life/setting_model.dart';
+import 'package:contact_life/main_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,8 +29,8 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<SettingModel>(
-      create: (_) => SettingModel(),
+    return ChangeNotifierProvider<MainModel>(
+      create: (_) => MainModel(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('コンタクト管理'),
@@ -48,7 +48,7 @@ class MyHomePage extends StatelessWidget {
             )
           ],
         ),
-        body: Consumer<SettingModel>(builder: (context, model, child) {
+        body: Consumer<MainModel>(builder: (context, model, child) {
           return Column(
             children: [
               Center(
@@ -90,8 +90,7 @@ class MyHomePage extends StatelessWidget {
                                                 SizedBox(
                                                   width: 70,
                                                   child: Text(
-                                                    // '${model.todayCounter}',
-                                                    '14',
+                                                    '${model.todayCounter}',
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontSize: 50,
@@ -121,7 +120,7 @@ class MyHomePage extends StatelessWidget {
                       child: Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -131,7 +130,7 @@ class MyHomePage extends StatelessWidget {
                                     SizedBox(
                                       width: 50,
                                       child: Text(
-                                        '6',
+                                        '${model.lensStock}',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 30,
@@ -173,7 +172,7 @@ class MyHomePage extends StatelessWidget {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -183,7 +182,7 @@ class MyHomePage extends StatelessWidget {
                                     SizedBox(
                                       width: 50,
                                       child: Text(
-                                        '6',
+                                        '${model.washerStock}',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 30,
