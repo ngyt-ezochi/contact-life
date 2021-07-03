@@ -1,6 +1,7 @@
 import 'package:contact_life/main_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SettingPage extends StatelessWidget {
@@ -9,21 +10,15 @@ class SettingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<MainModel>(
-      create: (_) => MainModel(),
+      create: (_) => MainModel()
+        ..getDate()
+        ..getDaysCounter()
+        ..getLensStock()
+        ..getWasherStock()
+        ..getNotification(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('設定'),
-          automaticallyImplyLeading: false,
-          leading: Consumer<MainModel>(
-            builder: (context, model, child) {
-              return IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-              );
-            },
-          ),
         ),
         body: Consumer<MainModel>(
           builder: (context, model, child) {
@@ -131,6 +126,7 @@ class SettingPage extends StatelessWidget {
                                               InkWell(
                                                 onTap: () {
                                                   //  TODO 日にち減らす
+                                                  model.decrementDaysCounter();
                                                 },
                                                 child: Container(
                                                   width: btnWidth,
@@ -188,8 +184,7 @@ class SettingPage extends StatelessWidget {
                                                             width: 20,
                                                             child: Text(
                                                               //TODO 変数にする
-                                                              // '${model.counter}',
-                                                              '14',
+                                                              '${model.daysCounter}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -206,7 +201,9 @@ class SettingPage extends StatelessWidget {
                                                 ),
                                               ),
                                               InkWell(
-                                                onTap: () {},
+                                                onTap: () {
+                                                  model.incrementDaysCounter();
+                                                },
                                                 child: Container(
                                                   width: btnWidth,
                                                   height: 30,
@@ -261,7 +258,7 @@ class SettingPage extends StatelessWidget {
                                           children: [
                                             InkWell(
                                               onTap: () {
-                                                model.decrementStock();
+                                                model.decrementLensStock();
                                                 //  TODO　ストック減らす
                                               },
                                               child: Container(
@@ -334,7 +331,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO ストック1増やす
-                                                model.incrementStock(1);
+                                                model.incrementLensStock(1);
                                               },
                                               child: Container(
                                                 width: btnWidth,
@@ -361,7 +358,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO ストック5増やす
-                                                model.incrementStock(5);
+                                                model.incrementLensStock(5);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -389,7 +386,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO ストック10増やす
-                                                model.incrementStock(10);
+                                                model.incrementLensStock(10);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -449,7 +446,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO 洗浄液減らす
-                                                model.decrementWasher();
+                                                model.decrementWasherStock();
                                               },
                                               child: Container(
                                                 width: btnWidth,
@@ -522,7 +519,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO  洗浄液1増やす
-                                                model.incrementWasher(1);
+                                                model.incrementWasherStock(1);
                                               },
                                               child: Container(
                                                 width: btnWidth,
@@ -549,7 +546,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO  洗浄液５増やす
-                                                model.incrementWasher(5);
+                                                model.incrementWasherStock(5);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -577,7 +574,7 @@ class SettingPage extends StatelessWidget {
                                             InkWell(
                                               onTap: () {
                                                 //TODO  洗浄液10増やす
-                                                model.incrementWasher(10);
+                                                model.incrementWasherStock(10);
                                               },
                                               child: Container(
                                                 width: 70,
@@ -708,29 +705,36 @@ class SettingPage extends StatelessWidget {
   }
 
   Future _selectedDate(BuildContext context, MainModel model) async {
-    final DateTime? selectedStartDate = await showDatePicker(
+    DateTime? selectedStartDate = await showDatePicker(
       context: context,
+      locale: const Locale("ja"),
       initialDate: DateTime.now(),
       firstDate: DateTime.now().add(Duration(days: -365)),
       lastDate: DateTime.now().add(Duration(days: 365)),
     );
     if (selectedStartDate != null) {
       model.selectStartDate(selectedStartDate);
+    } else if (selectedStartDate == null) {
+      print('選択日がnull');
     }
   }
 
   Future _selectPushTime(BuildContext context, MainModel model) async {
-    final TimeOfDay? selectedPushTime = await showTimePicker(
+    TimeOfDay? selectedPushTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
     if (selectedPushTime != null) {
       model.selectPushTime(selectedPushTime);
+    } else if (selectedPushTime == null) {
+      print('選択時間がnull');
     }
   }
 
+  //キーボードで変数を入力
   _showChangeDaysCounter(BuildContext context, MainModel model) => showDialog(
         context: context,
+        useRootNavigator: false,
         builder: (context) {
           return AlertDialog(
             title: Text('期間の入力'),
@@ -745,6 +749,10 @@ class SettingPage extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: '14',
                       ),
+                      autofocus: true,
+                      onChanged: (num) {
+                        if (num != '') model.putTodayCounter = num;
+                      },
                     ),
                   ],
                 ),
@@ -752,15 +760,16 @@ class SettingPage extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                child: Text('cancel'),
+                child: Text('CANCEL'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(false);
                 },
               ),
               TextButton(
                 child: Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
+                  model.inputDaysCounter();
                 },
               ),
             ],
@@ -770,6 +779,7 @@ class SettingPage extends StatelessWidget {
 
   _showChangeLensStock(BuildContext context, MainModel model) => showDialog(
         context: context,
+        useRootNavigator: false,
         builder: (context) {
           return AlertDialog(
             title: Text('レンズの数'),
@@ -784,6 +794,10 @@ class SettingPage extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: '6',
                       ),
+                      autofocus: true,
+                      onChanged: (num) {
+                        if (num != '') model.putLensStock = num;
+                      },
                     ),
                   ],
                 ),
@@ -791,15 +805,16 @@ class SettingPage extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                child: Text('cancel'),
+                child: Text('CANCEL'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(false);
                 },
               ),
               TextButton(
                 child: Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
+                  model.inputLensStock();
                 },
               ),
             ],
@@ -809,6 +824,7 @@ class SettingPage extends StatelessWidget {
 
   _showChangeWasherStock(BuildContext context, MainModel model) => showDialog(
         context: context,
+        useRootNavigator: false,
         builder: (context) {
           return AlertDialog(
             title: Text('洗浄液の数'),
@@ -823,6 +839,10 @@ class SettingPage extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: '6',
                       ),
+                      autofocus: true,
+                      onChanged: (num) {
+                        if (num != '') model.putWasherStock = num;
+                      },
                     ),
                   ],
                 ),
@@ -830,15 +850,16 @@ class SettingPage extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                child: Text('cancel'),
+                child: Text('CANCEL'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(false);
                 },
               ),
               TextButton(
                 child: Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
+                  model.inputWasherStock();
                 },
               ),
             ],

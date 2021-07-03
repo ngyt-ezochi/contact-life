@@ -2,6 +2,7 @@ import 'package:contact_life/circle_painer.dart';
 import 'package:contact_life/main_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'setting_page.dart';
@@ -19,12 +20,21 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale("en"),
+        const Locale("ja"),
+      ],
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  final size = 200.0;
+  final size = 240.0;
   final percentage = 0.7;
 
   @override
@@ -43,12 +53,21 @@ class MyHomePage extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => SettingPage(),
                   ),
+                  // PageTransition(
+                  //   type: PageTransitionType.rightToLeft,
+                  //   child: SettingPage(),
+                  // ),
                 );
               },
             )
           ],
         ),
         body: Consumer<MainModel>(builder: (context, model, child) {
+          model.getDate();
+          model.getDaysCounterAndPercentage();
+          // model.getDaysCounter();
+          model.getLensStock();
+          model.getWasherStock();
           return Column(
             children: [
               Center(
@@ -102,8 +121,8 @@ class MyHomePage extends StatelessWidget {
                                             ),
                                           ),
                                           Text(
-                                              // '${model.startDateText}~${model.goalDateText}'),
-                                              '6月21日~7月4日'),
+                                              '${model.startDateText}~${model.goalDateText}'),
+                                          // '6月21日~7月4日',),
                                         ],
                                       ),
                                     ),
@@ -116,7 +135,7 @@ class MyHomePage extends StatelessWidget {
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 0.0),
+                      padding: const EdgeInsets.fromLTRB(20.0, 30.0, 20.0, 0.0),
                       child: Column(
                         children: [
                           Padding(
@@ -160,6 +179,8 @@ class MyHomePage extends StatelessWidget {
                                                 child: Text('OK'),
                                                 onPressed: () {
                                                   //TODO レンズのカウントを−１する
+                                                  model
+                                                      .decrementLensStockAndResetStartDate();
                                                   Navigator.pop(context);
                                                 },
                                               ),
@@ -210,8 +231,9 @@ class MyHomePage extends StatelessWidget {
                                               ),
                                               CupertinoDialogAction(
                                                 child: Text('OK'),
-                                                onPressed: () {
+                                                onPressed: () async {
                                                   //TODO 洗浄液のカウントを−１する
+                                                  model.decrementWasherStock();
                                                   Navigator.pop(context);
                                                 },
                                               ),
