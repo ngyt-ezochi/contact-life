@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:contact_life/circle_painer.dart';
 import 'package:contact_life/main_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -34,11 +37,17 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final size = 240.0;
   final percentage = 0.7;
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      _requestIOSPermission();
+      _initializePlatformSpecifics();
+    }
     return ChangeNotifierProvider<MainModel>(
       create: (_) => MainModel(),
       child: Scaffold(
@@ -53,10 +62,6 @@ class MyHomePage extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => SettingPage(),
                   ),
-                  // PageTransition(
-                  //   type: PageTransitionType.rightToLeft,
-                  //   child: SettingPage(),
-                  // ),
                 );
               },
             )
@@ -255,6 +260,42 @@ class MyHomePage extends StatelessWidget {
           );
         }),
       ),
+    );
+  }
+
+  //通知機能の設定
+  void _requestIOSPermission() {
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()!
+        .requestPermissions(
+          alert: false,
+          badge: true,
+          sound: false,
+        );
+  }
+
+  void _initializePlatformSpecifics() {
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+
+    var initializationSettingsIOS = IOSInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+      onDidReceiveLocalNotification: (id, title, body, payload) async {
+        // your call back to the UI
+      },
+    );
+
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+
+    flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onSelectNotification: (String? payload) async {
+        //onNotificationClick(payload); // your call back to the UI
+      },
     );
   }
 }

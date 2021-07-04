@@ -643,8 +643,9 @@ class SettingPage extends StatelessWidget {
                                       SizedBox(
                                         width: 150,
                                         child: CupertinoSlidingSegmentedControl(
-                                          children: model.pushDateSet,
-                                          groupValue: model.pushDateGroupValue,
+                                          children: model.noticeDateSet,
+                                          groupValue:
+                                              model.noticeDateGroupValue,
                                           onValueChanged:
                                               (changeFormGroupValue) {
                                             model.slidingPushDateControl(
@@ -673,14 +674,14 @@ class SettingPage extends StatelessWidget {
                                           padding: const EdgeInsets.all(8.0),
                                           child: InkWell(
                                             child: Text(
-                                              '${model.pushTime}',
+                                              '${model.noticeTime}',
                                               textAlign: TextAlign.end,
                                               style: TextStyle(
                                                 fontSize: 18,
                                               ),
                                             ),
                                             onTap: () async {
-                                              _selectPushTime(context, model);
+                                              _selectNoticeTime(context, model);
                                             },
                                           ),
                                         ),
@@ -719,14 +720,14 @@ class SettingPage extends StatelessWidget {
     }
   }
 
-  Future _selectPushTime(BuildContext context, MainModel model) async {
-    TimeOfDay? selectedPushTime = await showTimePicker(
+  Future _selectNoticeTime(BuildContext context, MainModel model) async {
+    TimeOfDay? selectedNoticeTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (selectedPushTime != null) {
-      model.selectPushTime(selectedPushTime);
-    } else if (selectedPushTime == null) {
+    if (selectedNoticeTime != null) {
+      model.selectNoticeTime(selectedNoticeTime);
+    } else if (selectedNoticeTime == null) {
       print('選択時間がnull');
     }
   }
@@ -747,7 +748,7 @@ class SettingPage extends StatelessWidget {
                     TextFormField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: '14',
+                        hintText: '使用期限',
                       ),
                       autofocus: true,
                       onChanged: (num) {
@@ -792,7 +793,7 @@ class SettingPage extends StatelessWidget {
                     TextFormField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: '6',
+                        hintText: 'レンズの数',
                       ),
                       autofocus: true,
                       onChanged: (num) {
@@ -837,7 +838,7 @@ class SettingPage extends StatelessWidget {
                     TextFormField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: '6',
+                        hintText: '洗浄液の数',
                       ),
                       autofocus: true,
                       onChanged: (num) {

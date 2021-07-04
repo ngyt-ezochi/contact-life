@@ -1,18 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:timezone/data/latest.dart' as tz;
-// import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class MainModel extends ChangeNotifier {
-  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  //     FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   DateFormat outputFormat = DateFormat('MM月dd日');
   DateTime today = DateTime.now();
   //期間のゲージのパーセンテージ
-  double percentage = 0.7;
+  double percentage = 1.0;
 
   //開始日
   DateTime startDate = DateTime.now();
@@ -44,7 +45,13 @@ class MainModel extends ChangeNotifier {
 
   //通知機能のオンオフ
   bool isPushedOn = false;
-  String pushTime = '18:00';
+
+  //通知の時間
+  String noticeTime = '18:00';
+  late DateTime noticeDate;
+  int noticeHour = 18;
+  int noticeMin = 00;
+  late String noticeBody;
 
   //期間のスライドバーの設定
   int daysGroupValue = 0;
@@ -55,8 +62,8 @@ class MainModel extends ChangeNotifier {
   };
 
   //通知日のスライドバーの設定
-  int pushDateGroupValue = 0;
-  final Map<int, Widget> pushDateSet = const <int, Widget>{
+  int noticeDateGroupValue = 0;
+  final Map<int, Widget> noticeDateSet = const <int, Widget>{
     0: Text("前日"),
     1: Text("最終日"),
   };
@@ -110,8 +117,11 @@ class MainModel extends ChangeNotifier {
   void getNotification() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     this.isPushedOn = prefs.getBool('isPushedOn') ?? isPushedOn;
-    this.pushDateGroupValue =
-        prefs.getInt('pushDateGroupValue') ?? pushDateGroupValue;
+    this.noticeDateGroupValue =
+        prefs.getInt('pushDateGroupValue') ?? noticeDateGroupValue;
+    this.noticeTime = prefs.getString('noticeTime') ?? noticeTime;
+    this.noticeHour = prefs.getInt('noticeHour') ?? noticeHour;
+    this.noticeMin = prefs.getInt('noticeMin') ?? noticeMin;
     notifyListeners();
   }
 
@@ -120,6 +130,13 @@ class MainModel extends ChangeNotifier {
   void changeSwitch() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     isPushedOn = !isPushedOn;
+    if (isPushedOn) {
+      resetNotice(goalDate, noticeHour, noticeMin);
+      print('通知します');
+    } else {
+      await flutterLocalNotificationsPlugin.cancelAll();
+      print('キャンセル');
+    }
     prefs.setBool('isPushedOn', isPushedOn);
     notifyListeners();
   }
@@ -166,21 +183,21 @@ class MainModel extends ChangeNotifier {
   void setDaysCounter(daysCounter) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     this.daysCounter = daysCounter;
-    await prefs.setInt('daysCounter', daysCounter);
     this.goalDate = startDate.add(Duration(days: (daysCounter - 1)));
     print(goalDate);
-    setTimeStampFromGoalDate(prefs, goalDate);
     this.goalDateText = outputFormat.format(goalDate);
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
+    setTimeStampFromGoalDate(prefs, goalDate);
+    await prefs.setInt('daysCounter', daysCounter);
     await prefs.setString('goalDateText', goalDateText);
-    // if (pushOn) resetNotification(goalDate, pushHour, pushMin);
     notifyListeners();
   }
 
   //通知日のスライドバー切り替え
   void slidingPushDateControl(changeFormGroupValue) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    this.pushDateGroupValue = changeFormGroupValue;
-    switch (pushDateGroupValue) {
+    this.noticeDateGroupValue = changeFormGroupValue;
+    switch (noticeDateGroupValue) {
       case 0:
         await prefs.setInt('pushDateGroupValue', 0);
         break;
@@ -188,7 +205,7 @@ class MainModel extends ChangeNotifier {
         await prefs.setInt('pushDateGroupValue', 1);
         break;
     }
-    // resetNotification(goalDate, pushHour, pushMin);
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
     notifyListeners();
   }
 
@@ -201,6 +218,7 @@ class MainModel extends ChangeNotifier {
     print(goalDate);
     this.startDateText = outputFormat.format(startDate);
     this.goalDateText = outputFormat.format(goalDate);
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
     setTimeStampFromDate(prefs, startDate, goalDate);
     await prefs.setString('startDateText', startDateText);
     await prefs.setString('goalDateText', goalDateText);
@@ -214,9 +232,9 @@ class MainModel extends ChangeNotifier {
     this.goalDate = startDate.add(Duration(days: (daysCounter - 1)));
     setTimeStampFromGoalDate(prefs, goalDate);
     this.goalDateText = outputFormat.format(goalDate);
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
     await prefs.setInt('daysCounter', daysCounter);
     await prefs.setString('goalDateText', goalDateText);
-    // if (pushOn) resetNotification(goalDate, pushHour, pushMin);
     notifyListeners();
   }
 
@@ -227,9 +245,9 @@ class MainModel extends ChangeNotifier {
     this.goalDate = startDate.add(Duration(days: (daysCounter - 1)));
     setTimeStampFromGoalDate(prefs, goalDate);
     this.goalDateText = outputFormat.format(goalDate);
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
     await prefs.setString('goalDateText', goalDateText);
     await prefs.setInt('daysCounter', daysCounter);
-    // if (pushOn) resetNotification(goalDate, pushHour, pushMin);
     notifyListeners();
   }
 
@@ -275,10 +293,17 @@ class MainModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectPushTime(TimeOfDay t) async {
+  void selectNoticeTime(TimeOfDay t) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var now = DateTime.now();
     var dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
-    this.pushTime = (DateFormat.Hm()).format(dt);
+    this.noticeTime = (DateFormat.Hm()).format(dt);
+    this.noticeHour = t.hour;
+    this.noticeMin = t.minute;
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
+    await prefs.setString('noticeTime', noticeTime);
+    await prefs.setInt('noticeHour', noticeHour);
+    await prefs.setInt('noticeMin', noticeMin);
     notifyListeners();
   }
 
@@ -286,8 +311,12 @@ class MainModel extends ChangeNotifier {
   void inputDaysCounter() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     this.daysCounter = int.parse(putTodayCounter);
+    this.goalDate = startDate.add(Duration(days: (daysCounter - 1)));
+    setTimeStampFromGoalDate(prefs, goalDate);
+    this.goalDateText = outputFormat.format(goalDate);
+    if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
     await prefs.setInt('daysCounter', daysCounter);
-
+    await prefs.setString('goalDateText', goalDateText);
     notifyListeners();
   }
 
@@ -303,5 +332,81 @@ class MainModel extends ChangeNotifier {
     this.washerStock = int.parse(putWasherStock);
     await prefs.setInt('washerStock', washerStock);
     notifyListeners();
+  }
+
+  //  通知設定
+  void resetNotice(DateTime goalDate, int pushHour, int pushMin) async {
+    await flutterLocalNotificationsPlugin.cancelAll();
+    scheduleNoticeDate(goalDate, pushHour, pushMin);
+    print('通知するよ');
+  }
+
+  void scheduleNoticeDate(DateTime date, int hour, int min) async {
+    if (noticeDateGroupValue == 0) {
+      noticeBody = '明日でレンズの期限が切れます';
+      noticeDate = goalDate.add(Duration(days: -1));
+    } else if (noticeDateGroupValue == 1) {
+      noticeBody = '今日でレンズの期限が切れます';
+      noticeDate = goalDate;
+    }
+    print(noticeBody);
+
+    await _configureLocalTimeZone();
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        0,
+        '使用期限通知',
+        noticeBody,
+        _nextInstanceOfNoticeDate(date, hour, min),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'notification channel id',
+            'notification channel name',
+            'notification description',
+          ),
+        ),
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time);
+  }
+
+  tz.TZDateTime _nextInstanceOfNoticeDate(DateTime date, int hour, int min) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    // year, month, day, hour, minutes, second
+    //TODO 指定した日時に設定する
+    // tz.TZDateTime scheduledDate =
+    //     tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, min, 0);
+    tz.TZDateTime scheduledDate =
+        tz.TZDateTime(tz.local, date.year, date.month, date.day, hour, min);
+    return scheduledDate;
+  }
+
+  //ローカル時間の設定
+  Future<void> _configureLocalTimeZone() async {
+    tz.initializeTimeZones();
+    final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName!));
+  }
+
+  void initializePlatformSpecifics() {
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+
+    var initializationSettingsIOS = IOSInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+      onDidReceiveLocalNotification: (id, title, body, payload) async {
+        // your call back to the UI
+      },
+    );
+
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: (String? payload) async {
+      //onNotificationClick(payload); // your call back to the UI
+    });
   }
 }
