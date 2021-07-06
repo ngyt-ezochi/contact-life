@@ -1,13 +1,12 @@
 import 'dart:io';
-import 'package:contact_life/presentation/main/main_model.dart';
+import 'package:contact_life/presantation/main/circle_painer.dart';
+import 'package:contact_life/presantation/main_model.dart';
+import 'package:contact_life/presantation/settings/setting_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-
-import 'presentation/main/component/circle_painer.dart';
-import 'presentation/setting/page/setting_page.dart';
 
 void main() {
   runApp(MyApp());
