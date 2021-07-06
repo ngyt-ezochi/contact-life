@@ -372,7 +372,7 @@ class MainModel extends ChangeNotifier {
   }
 
   tz.TZDateTime _nextInstanceOfNoticeDate(DateTime date, int hour, int min) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    // final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     // year, month, day, hour, minutes, second
     //TODO 指定した日時に設定する
     // tz.TZDateTime scheduledDate =
