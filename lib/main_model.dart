@@ -184,7 +184,6 @@ class MainModel extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     this.daysCounter = daysCounter;
     this.goalDate = startDate.add(Duration(days: (daysCounter - 1)));
-    print(goalDate);
     this.goalDateText = outputFormat.format(goalDate);
     if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
     setTimeStampFromGoalDate(prefs, goalDate);
@@ -213,9 +212,7 @@ class MainModel extends ChangeNotifier {
   void selectStartDate(DateTime selectedStartDate) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     this.startDate = selectedStartDate;
-    print(startDate);
     this.goalDate = startDate.add(Duration(days: (daysCounter - 1)));
-    print(goalDate);
     this.startDateText = outputFormat.format(startDate);
     this.goalDateText = outputFormat.format(goalDate);
     if (isPushedOn) resetNotice(goalDate, noticeHour, noticeMin);
@@ -349,8 +346,6 @@ class MainModel extends ChangeNotifier {
       noticeBody = '今日でレンズの期限が切れます';
       noticeDate = goalDate;
     }
-    print(noticeBody);
-
     await _configureLocalTimeZone();
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
