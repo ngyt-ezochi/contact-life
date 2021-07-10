@@ -72,6 +72,7 @@ class MyHomePage extends StatelessWidget {
           // model.getDaysCounter();
           model.getLensStock();
           model.getWasherStock();
+          model.getNotification();
           return Column(
             children: [
               Center(
