@@ -375,8 +375,6 @@ class MainModel extends ChangeNotifier {
     // final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     // year, month, day, hour, minutes, second
     //TODO 指定した日時に設定する
-    // tz.TZDateTime scheduledDate =
-    //     tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, min, 0);
     tz.TZDateTime scheduledDate =
         tz.TZDateTime(tz.local, date.year, date.month, date.day, hour, min);
     return scheduledDate;
