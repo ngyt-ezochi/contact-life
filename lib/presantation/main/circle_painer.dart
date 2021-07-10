@@ -11,7 +11,7 @@ class CirclePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (int i = 1; i < (360 * percentage); i += 1) {
+    for (int i = 1; i < (360 * percentage); i += 5) {
       final per = i / 360.0;
       final color = ColorTween(
         begin: Colors.blue.shade200,
@@ -24,8 +24,8 @@ class CirclePainter extends CustomPainter {
 
       final spaceLen = 0;
       final lineLen = 30;
-      // final angle = (2 * pi * per) - (pi / 2);
-      final angle = (2 * pi * per);
+      final angle = (2 * pi * per) - (pi / 2);
+      // final angle = (2 * pi * per);
 
       // 円の中心座標
       final offset0 = Offset(size.width * 0.5, size.height * 0.5);
